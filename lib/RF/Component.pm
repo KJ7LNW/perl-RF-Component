@@ -437,7 +437,7 @@ __END__
 
 =head1 NAME
 
-RF::Component - Calculate values of RF component objects (L, C, etc).
+RF::Component - Compose RF component circuits and calculate values from objects (L, C, ESR, etc).
 
 =head1 SYNOPSIS
 
