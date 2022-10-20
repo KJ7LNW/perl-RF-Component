@@ -32,13 +32,7 @@ my %WriteMakefileArgs = (
 		'Test::More' => '0',
 	},
 	PREREQ_PM => {
-		'LWP::Protocol::https' => '0',
-		'Data::Dumper'         => '2.167',
-		'Digest::MD5'          => '2.55',
-		'JSON'                 => '2.97001',
-		'LWP::Protocol::https' => '6.07',
-		'LWP::UserAgent'       => '6.34',
-
+		'PDL::IO::Touchstone' => '1.007',
 	},
 	dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean => { FILES    => 'RF-Component-*' },
