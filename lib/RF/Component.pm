@@ -1,4 +1,6 @@
 package RF::Component;
+$VERSION = 1.001;
+
 
 use strict;
 use warnings;
