@@ -132,12 +132,12 @@ sub new
 
 sub load
 {
-	my ($class, $filename, $opts, %newopts) = @_;
+	my ($class, $filename, %newopts) = @_;
 
 	my $self;
 	if ($filename =~ /\.s\d+p/)
 	{
-		$self = $class->load_snp($filename, $opts, %newopts)
+		$self = $class->load_snp($filename, %newopts)
 	}
 	else
 	{
@@ -151,9 +151,11 @@ sub load
 
 sub load_snp
 {
-	my ($class, $filename, $opts, %newopts) = @_;
+	my ($class, $filename, %newopts) = @_;
 
 	my %args;
+
+	my $opts = delete $newopts{load_options};
 
 	@args{qw/f m param_type z0/} = rsnp($filename, $opts);
 
@@ -446,8 +448,8 @@ RF::Component - Compose RF component circuits and calculate values from objects 
 This module builds on L<PDL::IO::Touchstone> by encapsulating data returned by its
 methods into an object for easy use:
 
-	my $cap = $self->load('/path/to/capacitor.s2p', $options);
-	my $wilky = $self->load('/path/to/wilkinson.s3p', $options);
+	my $cap = RF::Component->load('/path/to/capacitor.s2p', $options);
+	my $wilky = RF::Component->load('/path/to/wilkinson.s3p', $options);
 
 	# port 1 input impedances
 	my $z_in = $cap->port_z(1);
@@ -466,9 +468,9 @@ frequency.
 
 =head1 Constructor
 
-The C<$self-E<gt>load> function (below) is typically used to load RF data, but
+The C<RF::Component-E<gt>load> function (below) is typically used to load RF data, but
 you may pass it directly to the constructor as follows.  Most of these options 
-are valid for C<$self-E<gt>load> as well:
+are valid for C<RF::Component-E<gt>load> as well:
 
 	my $c = RF::Component->new(%opts);
 
@@ -553,14 +555,14 @@ Supported units: pF|nF|uF|uH|nH|R|Ohm|Ohms
 
 You may also pass the above C<new> options to the load call:
 
-	my $cap = $self->load('/path/to/capacitor.s2p', $load_options, %new_options);
+	my $cap = RF::Component->load('/path/to/capacitor.s2p', %options);
 
 
 =head1 IO Functions
 
 =head2 C<RF::Component-E<gt>load> - Load an RF data file as a component
 
-    $cap = $self->load($filename, $load_options, %new_options);
+    $cap = RF::Component->load($filename, %new_options);
 
 Arguments:
 
@@ -568,11 +570,12 @@ Arguments:
 
 =item * $filename: the path to the data file you wish to load
 
-=item * $load_options: a hashref of options that get passed to the
-L<PDL::IO::Touchstone> C<rsnp()> function options.
-
 =item * %new_options: a hash of options passed to C<RF::Component-E<gt>new> as
-listed above.
+listed above, except the option C<load_options>:
+
+C<load()> supports the special option C<load_options>.  If C<load_options> is
+specified then it is passed to the loading function such as
+C<PDL::IO::Touchstone::rsnp()>.
 
 =back
 
@@ -584,10 +587,11 @@ L<PDL::IO::Touchstone> for specific details about C<$options>.
 
 =head2 C<RF::Component-E<gt>load_snp> - Load a Touchstone data file as a component
 
-This is the lower-level function called by C<RF::Component-E<gt>load>.  This function is 
-functionally equivalent but does not evaluate the file extension being passed.
+This is the lower-level function called by C<RF::Component-E<gt>load>.  This
+function is functionally equivalent but does not evaluate the file extension
+being passed before calling C<PDL::IO::Touchstone::rsnp()>:
 
-    $cap = $self->load_snp($filename, $load_options, %new_options);
+    $cap = RF::Component->load_snp($filename, %new_options);
 
 
 =head1 Calculation Functions
@@ -697,6 +701,7 @@ the insertion (S21) phase changes from negative through zero to positive."
 
 Internally this function uses the L<IO::PDL::Touchstone> C<y_srf_ideal> function.
 
+=head1 Helper Functions
 
 =head2 C<$n = $self-E<gt>num_ports> - return the number of ports in this component.
 
