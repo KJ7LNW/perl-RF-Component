@@ -194,45 +194,10 @@ sub save
 	return wsnp($filename, $f, $S, $param_type, $z0, $comments, $fmt, $from_hz, $to_hz);
 }
 
-sub S
-{
-	my ($self, $i, $j) = @_;
-
-	my $S = $self->_sparam;
-
-	return pos_vec($S, $i, $j) if ($i && $j);
-	return $S;
-}
-
-sub Y
-{
-	my ($self, $i, $j) = @_;
-
-	my $Y = $self->_yparam;
-
-	return pos_vec($Y, $i, $j) if ($i && $j);
-	return $Y;
-}
-
-sub Z
-{
-	my ($self, $i, $j) = @_;
-
-	my $Z = $self->_zparam;
-
-	return pos_vec($Z, $i, $j) if ($i && $j);
-	return $Z;
-}
-
-sub ABCD
-{
-	my ($self, $i, $j) = @_;
-
-	my $ABCD = $self->_aparam;
-
-	return pos_vec($ABCD, $i, $j) if ($i && $j);
-	return $ABCD;
-}
+sub S { return shift->_X_param('S', @_) }
+sub Y { return shift->_X_param('Y', @_) }
+sub Z { return shift->_X_param('Z', @_) }
+sub A { return shift->_X_param('A', @_) }
 
 sub A { return shift->ABCD(1,1) }
 sub B { return shift->ABCD(1,2) }
@@ -269,25 +234,25 @@ sub value_unit { return shift->{value_unit}; }
 sub comments { return @{ shift->{comments} // [] }; }
 
 # Passthrough calls from PDL::IO::Touchstone:
-sub  port_z            {  my $self = shift;   s_port_z(               $self->_sparam, $self->{z0_ref}, @_)  }
-sub  inductance        {  my $self = shift;   y_inductance(           $self->_yparam, $self->{freqs},  @_)  }
-sub  ind_nH            {  my $self = shift;   y_ind_nH(               $self->_yparam, $self->{freqs},  @_)  }
-sub  resistance        {  my $self = shift;   y_resistance(           $self->_yparam,  @_)  }
-sub  esr               {  my $self = shift;   y_esr(                  $self->_yparam,  @_)  }
-sub  capacitance       {  my $self = shift;   y_capacitance(          $self->_yparam, $self->{freqs},  @_)  }
-sub  cap_pF            {  my $self = shift;   y_cap_pF(               $self->_yparam, $self->{freqs},  @_)  }
-sub  qfactor_l         {  my $self = shift;   y_qfactor_l(            $self->_yparam, $self->{freqs},  @_)  }
-sub  qfactor_c         {  my $self = shift;   y_qfactor_c(            $self->_yparam, $self->{freqs},  @_)  }
-sub  reactance_l       {  my $self = shift;   y_reactance_l(          $self->_yparam, $self->{freqs},  @_)  }
-sub  reactance_c       {  my $self = shift;   y_reactance_c(          $self->_yparam, $self->{freqs},  @_)  }
-sub  reactance         {  my $self = shift;   y_reactance(            $self->_yparam, $self->{freqs},  @_)  }
-sub  srf               {  my $self = shift;   y_srf(                  $self->_yparam, $self->{freqs},  @_)  }
-sub  srf_ideal         {  my $self = shift;   y_srf_ideal(            $self->_yparam, $self->{freqs},  @_)  }
-sub  is_lossless       {  my $self = shift;   abcd_is_lossless(       $self->_aparam,  @_)  }
-sub  is_symmetrical    {  my $self = shift;   abcd_is_symmetrical(    $self->_aparam,  @_)  }
-sub  is_reciprocal     {  my $self = shift;   abcd_is_reciprocal(     $self->_aparam,  @_)  }
-sub  is_open_circuit   {  my $self = shift;   abcd_is_open_circuit(   $self->_aparam,  @_)  }
-sub  is_short_circuit  {  my $self = shift;   abcd_is_short_circuit(  $self->_aparam,  @_)  }
+sub  port_z            {  my $self = shift;   s_port_z(               $self->S, $self->{z0_ref}, @_)  }
+sub  inductance        {  my $self = shift;   y_inductance(           $self->Y, $self->{freqs},  @_)  }
+sub  ind_nH            {  my $self = shift;   y_ind_nH(               $self->Y, $self->{freqs},  @_)  }
+sub  resistance        {  my $self = shift;   y_resistance(           $self->Y,  @_)  }
+sub  esr               {  my $self = shift;   y_esr(                  $self->Y,  @_)  }
+sub  capacitance       {  my $self = shift;   y_capacitance(          $self->Y, $self->{freqs},  @_)  }
+sub  cap_pF            {  my $self = shift;   y_cap_pF(               $self->Y, $self->{freqs},  @_)  }
+sub  qfactor_l         {  my $self = shift;   y_qfactor_l(            $self->Y, $self->{freqs},  @_)  }
+sub  qfactor_c         {  my $self = shift;   y_qfactor_c(            $self->Y, $self->{freqs},  @_)  }
+sub  reactance_l       {  my $self = shift;   y_reactance_l(          $self->Y, $self->{freqs},  @_)  }
+sub  reactance_c       {  my $self = shift;   y_reactance_c(          $self->Y, $self->{freqs},  @_)  }
+sub  reactance         {  my $self = shift;   y_reactance(            $self->Y, $self->{freqs},  @_)  }
+sub  srf               {  my $self = shift;   y_srf(                  $self->Y, $self->{freqs},  @_)  }
+sub  srf_ideal         {  my $self = shift;   y_srf_ideal(            $self->Y, $self->{freqs},  @_)  }
+sub  is_lossless       {  my $self = shift;   abcd_is_lossless(       $self->ABCD,  @_)  }
+sub  is_symmetrical    {  my $self = shift;   abcd_is_symmetrical(    $self->ABCD,  @_)  }
+sub  is_reciprocal     {  my $self = shift;   abcd_is_reciprocal(     $self->ABCD,  @_)  }
+sub  is_open_circuit   {  my $self = shift;   abcd_is_open_circuit(   $self->ABCD,  @_)  }
+sub  is_short_circuit  {  my $self = shift;   abcd_is_short_circuit(  $self->ABCD,  @_)  }
 
 sub interpolate
 {
@@ -301,60 +266,6 @@ sub interpolate
 	}
 
 	return __PACKAGE__->new(%clone);
-}
-
-sub _sparam
-{
-	my $self = shift;
-
-	my $S = $self->{S};
-
-	$S //= abcd_to_s($self->{A}, $self->z0_ref) if defined($self->{A});
-	$S //= y_to_s($self->{Y}, $self->z0_ref) if defined($self->{Y});
-	$S //= z_to_s($self->{Z}, $self->z0_ref) if defined($self->{Z});
-
-	$self->{S} //= $S;
-
-	return $S if (defined $S);
-
-	my $params = $self->_available_params || '(none)';
-	croak("S-parameter from available matrix is not implemented.  Available matrix types: $params");
-}
-
-sub _yparam
-{
-	my $self = shift;
-
-	$self->{Y} //= s_to_y($self->_sparam, $self->z0_ref);
-
-	return $self->{Y} if (defined($self->{Y}));
-
-	my $params = $self->_available_params || '(none)';
-	croak("Y-parameter from available matrix is not implemented.  Available matrix types: $params");
-}
-
-sub _zparam
-{
-	my $self = shift;
-
-	$self->{Z} //= s_to_z($self->_sparam, $self->z0_ref);
-
-	return $self->{Z} if (defined($self->{Z}));
-
-	my $params = $self->_available_params || '(none)';
-	croak("Z-parameter from available matrix is not implemented.  Available matrix types: $params");
-}
-
-sub _aparam
-{
-	my $self = shift;
-
-	$self->{A} //= s_to_abcd($self->_sparam, $self->z0_ref);
-
-	return $self->{A} if (defined($self->{A}));
-
-	my $params = $self->_available_params || '(none)';
-	croak("ABCD-parameter from available matrix is not implemented.  Available matrix types: $params");
 }
 
 # return S, A, etc... based on which are defined.
@@ -459,6 +370,61 @@ sub _parse_model_value_literal
 	}
 
 	return $val;
+}
+
+sub _X_param
+{
+	my ($self, $X, $i, $j) = @_;
+
+	my $m;
+
+	# Try to find an S-matrix:
+	my $S = $self->{S};
+	if (!defined($S))
+	{
+		$S //= abcd_to_s($self->{A}, $self->z0_ref) if defined($self->{A});
+		$S //= y_to_s($self->{Y}, $self->z0_ref) if defined($self->{Y});
+		$S //= z_to_s($self->{Z}, $self->z0_ref) if defined($self->{Z});
+
+		$self->{S} = $S;
+	}
+
+	# Set $m from the object if we have it, otherwise try to create $m from
+	# $S.  This will fail if S is undefined. There is room for optimization
+	# here if you often convert directly from, for example, Y to ABCD.  If
+	# this is the case then write y_to_abcd in PDL::IO::Touchstone and add
+	# a case for:
+	#
+	#      elsif ($X eq 'Y') {...}
+	#
+	# However, the most common conversion is probably from S:
+	$m = $self->{$X};
+	if (!defined($m) && defined($S))
+	{
+		my $f;
+
+		# Note that at this point here: $X ne 'S':
+
+		$f = \&s_to_abcd if ($X eq 'A' || $X eq 'ABCD');
+		$f = \&s_to_y if ($X eq 'Y');
+		$f = \&s_to_z if ($X eq 'Z');
+
+		croak "unknown (or unimplemented) RF parameter type: $X" if (!$f);
+
+		# Convert based on the function above:
+		$m = $f->($S, $self->z0_ref);
+
+		$self->{$X} = $m;
+	}
+
+	if (!defined($m))
+	{
+		my $params = $self->_available_params || '(none)';
+		croak("$X-parameter from available matrix is not implemented.  Available matrix types: $params");
+	}
+
+	return pos_vec($m, $i, $j) if ($i && $j);
+	return $m;
 }
 
 
