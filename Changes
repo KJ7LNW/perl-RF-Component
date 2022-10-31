@@ -1,4 +1,8 @@
 Revision history for RF-Component
+1.002   Sun, 30 Oct 2022 18:31:27 -0700
+        Added support to save Touchstone files (.s2p, .sNp, etc.)
+	Moved load_options into %opts (not backwards-compatible)
+	Fixed documentation related to calling conventions
 
 1.001	Fri, 05 Aug 2022 17:36:28 -0700
         First version, released on an unsuspecting world.

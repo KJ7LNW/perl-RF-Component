@@ -14,6 +14,7 @@ remake.sh
 repod.sh
 t/00-load.t
 t/01-read-test-data.t
+t/02-write-test-data.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

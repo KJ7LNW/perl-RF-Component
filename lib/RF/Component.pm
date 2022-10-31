@@ -1,5 +1,5 @@
 package RF::Component;
-$VERSION = 1.001;
+$VERSION = 1.002;
 
 
 use strict;
