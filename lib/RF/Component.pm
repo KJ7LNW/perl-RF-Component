@@ -136,6 +136,8 @@ sub load
 {
 	my ($class, $filename, %newopts) = @_;
 
+	croak "usage: ".__PACKAGE__."->load(...)" if ref $class;
+
 	my $self;
 	if ($filename =~ /\.s\d+p/i)
 	{
@@ -181,23 +183,39 @@ sub save
 {
 	my ($self, $filename, %args) = @_;
 
-	my ($f, $S, $param_type, $z0, $comments, $fmt, $from_hz, $to_hz)
-		= @{$self}{qw/freqs S param_type z0_ref comments output_fmt funit orig_f_unit/};
+	if ($filename =~ /\.s\d+p/i)
+	{
+		$self->save_snp($filename, %args)
+	}
+	else
+	{
+		croak("$filename: unknown file extension");
+	}
+}
 
-	$S //= $self->S;
-	$param_type = 'S';
-	$from_hz = 'Hz';
+sub save_snp
+{
+	my ($self, $filename, %args) = @_;
 
-	$to_hz = $args{to_hz} if $args{to_hz};
+	my ($f, $param_type, $z0, $comments, $fmt, $output_f_unit)
+		= @{$self}{qw/freqs param_type z0_ref comments output_fmt orig_f_unit/};
+
+	$param_type = $args{param_type} if $args{param_type};
+	$param_type //= 'S';
+	my $m = $self->_X_param($param_type);
+
+	$output_f_unit = $args{output_f_unit} if $args{output_f_unit};
 	$fmt = $args{output_fmt} if $args{output_fmt};
 
-	return wsnp($filename, $f, $S, $param_type, $z0, $comments, $fmt, $from_hz, $to_hz);
+	return wsnp($filename, $f, $m, $param_type, $z0, $comments, $fmt, 'Hz', $output_f_unit);
 }
+
+sub freqs { return shift->{freqs} }
 
 sub S { return shift->_X_param('S', @_) }
 sub Y { return shift->_X_param('Y', @_) }
 sub Z { return shift->_X_param('Z', @_) }
-sub A { return shift->_X_param('A', @_) }
+sub ABCD { return shift->_X_param('A', @_) }
 
 sub A { return shift->ABCD(1,1) }
 sub B { return shift->ABCD(1,2) }
@@ -390,14 +408,12 @@ sub _X_param
 	}
 
 	# Set $m from the object if we have it, otherwise try to create $m from
-	# $S.  This will fail if S is undefined. There is room for optimization
-	# here if you often convert directly from, for example, Y to ABCD.  If
-	# this is the case then write y_to_abcd in PDL::IO::Touchstone and add
-	# a case for:
+	# $S.  This will fail if S is undefined.
 	#
-	#      elsif ($X eq 'Y') {...}
-	#
-	# However, the most common conversion is probably from S:
+	# There is room for optimization here if you often convert directly
+	# from, for example, Y to ABCD.  If this is the case then write a new
+	# y_to_abcd function in PDL::IO::Touchstone and add a special for when
+	# $X eq 'Y'.  However, the most common conversion is probably from S:
 	$m = $self->{$X};
 	if (!defined($m) && defined($S))
 	{
@@ -453,6 +469,9 @@ methods into an object for easy use:
 	my $S11 = $cap->S(1,1);
 	my $Y21 = $cap->Y(2,1);
 	my $Z33 = $wilky->Z(3,3);
+
+	# Write a Y-parameter .s2p in mag/angle format::
+	$cap->save("cap-y.s2p", param_type => 'Y', output_fmt => 'MA');
 
 In most cases, the return value from the L<RF::Component> methods are L<PDL>
 vectors, typically one value per frequency.  For example, C<$pF> as shown above
@@ -607,6 +626,32 @@ being passed before calling C<PDL::IO::Touchstone::rsnp()>:
 
     $cap = RF::Component->load_snp($filename, %new_options);
 
+=head2 C<RF::Component-E<gt>save> - Write the component to a data file
+
+    $cap->save('cap.s2p', %options);
+
+This function will match based on the output file extension and call the
+appropriate save_* function below.  The C<%options> hash will depend on the
+desired file output type.
+
+=head2 C<RF::Component-E<gt>save_snp> - Write the component to a Touchstone data file
+
+    $cap->save_snp('cap.s2p', %options);
+
+=over 4
+
+=item * C<param_type>: Supported paramter type: S, Y, Z, A
+
+Notice: While A can be specified to write ABCD-formatted parameters, the ABCD
+matrix is not officially supported by the Touchstone spec.
+
+=item * C<output_f_unit>: The .sNp file's frequency unit.
+
+This defaults to Hz, but supports SI units such as: KHZ, MHz, GHz, ...
+
+=item * C<output_fmt>: See above, same as in C<new()>.
+
+=back
 
 =head1 Calculation Functions
 
