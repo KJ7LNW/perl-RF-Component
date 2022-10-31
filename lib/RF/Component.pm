@@ -16,6 +16,8 @@ our %valid_opts = map { $_ => 1 } (
 				z0_ref
 				n_ports
 				comments
+				output_fmt
+				orig_f_unit
 				filename
 				model
 				value
@@ -135,7 +137,7 @@ sub load
 	my ($class, $filename, %newopts) = @_;
 
 	my $self;
-	if ($filename =~ /\.s\d+p/)
+	if ($filename =~ /\.s\d+p/i)
 	{
 		$self = $class->load_snp($filename, %newopts)
 	}
@@ -157,14 +159,39 @@ sub load_snp
 
 	my $opts = delete $newopts{load_options};
 
-	@args{qw/f m param_type z0/} = rsnp($filename, $opts);
+	croak "units: RF::Component requires an internal representation of Hz" if ($opts->{units} && lc($opts->{units}) ne 'hz');
+
+	@args{qw/freqs m param_type z0_ref comments output_fmt funit orig_f_unit/} = rsnp($filename, $opts);
+
+	# Name the matrix S, Z, Y, etc. based on its type:
+	$args{$args{param_type}} = delete $args{m};
+	$args{n_ports} = PDL::IO::Touchstone::n_ports($args{$args{param_type}});
+
+	# The constructor does not use these:
+	delete $args{funit}; # dont need it, always Hz
+	delete $args{param_type};
 
 	return $class->new(
 		%newopts,
-		freqs => $args{f},
-		uc($args{param_type}) => $args{m},
-		n_ports => PDL::IO::Touchstone::n_ports($args{m}),
-		z0_ref => $args{z0});
+		%args
+		);
+}
+
+sub save
+{
+	my ($self, $filename, %args) = @_;
+
+	my ($f, $S, $param_type, $z0, $comments, $fmt, $from_hz, $to_hz)
+		= @{$self}{qw/freqs S param_type z0_ref comments output_fmt funit orig_f_unit/};
+
+	$S //= $self->S;
+	$param_type = 'S';
+	$from_hz = 'Hz';
+
+	$to_hz = $args{to_hz} if $args{to_hz};
+	$fmt = $args{output_fmt} if $args{output_fmt};
+
+	return wsnp($filename, $f, $S, $param_type, $z0, $comments, $fmt, $from_hz, $to_hz);
 }
 
 sub S
@@ -478,14 +505,14 @@ are valid for C<RF::Component-E<gt>load> as well:
 
 =over 4
 
-=item * freqs: a PDL vector, one for each frequency in Hz.
+=item * C<freqs>: a PDL vector, one for each frequency in Hz.
 
-=item * z0_ref: A value representing the charectaristic impedance at each port.
+=item * C<z0_ref>: A value representing the charectaristic impedance at each port.
 If port impedances differ, then this may be a vector
 
-=item * n_ports: the number of ports represented by the port parameter matrix(es):
+=item * C<n_ports>: the number of ports represented by the port parameter matrix(es):
 
-=item * At least one (N,N,M) L<PDL> object where N is the number of ports and M
+=item * At least one (N,N,M) L<PDL> element where N is the number of ports and M
 is the number of frequencies to represent complex port-parameter data:
 
 =over 4
@@ -512,13 +539,34 @@ is the number of frequencies to represent complex port-parameter data:
 
 =over 4
 
-=item * comments - An arrayref of comments read from C<load>
+=item * C<comments>: An arrayref of comments read from C<load>
 
-=item * filename - The filename read by C<load>
+=item * C<filename>: The filename read by C<load>
 
-=item * model - Component model number
+=item * C<output_fmt>: The .sNp output format: one of DB, MA, or RI
 
-=item * value_code_regex - Regular expression to parse the exponent-value code
+This is the format originally read in by C<$self-E<gt>load>.
+
+=over 4
+
+=item DB: dB,phase formatted
+
+=item MA: magnitude,phase formatted
+
+=item RI: real,imag formatted
+
+=back
+
+=item * C<orig_f_unit>: The original frequency unit from the .sNp file
+
+This is the frequency format originally read in by C<$self-E<gt>load>:
+kHz, MHz, GHz, THz, ...
+
+=item * C<filename>: The filename read by C<load>
+
+=item * C<model>: Component model number
+
+=item * C<value_code_regex>: Regular expression to parse the exponent-value code
 
 Specifies the variable to be assigned and a regular expression to match the
 capacitance code (or other unit): NNX or NRN. X is the exponent, N is a numeric
@@ -533,7 +581,7 @@ excluded from the code.  Example:
 The above (...) must match the code (or literal) to be placed in the MDF
 variable. 
 
-=item * value_literal_regex - Regular expression to parse the literal value
+=item * C<value_literal_regex>: Regular expression to parse the literal value
 
 The "literal" version is the same as C<value_code_regex> but does not calcualte
 the code, it takes the value verbatim.  For example, some inductors specify the
@@ -541,12 +589,12 @@ number of turns in their s2p filename:
 
         MODEL-([0-9]+)T\.s2p
 
-=item * value - Component value
+=item * C<value>: Component value
 
 The component value is parsed based on C<value_code_regex> or
 C<value_literal_regex>
 
-=item * value_unit - Unit of the value (pF, nH, etc).
+=item * C<value_unit>: Unit of the value (pF, nH, etc).
 
 This is the unit expected in C<value> afer parsing C<value_code_regex>.
 Supported units: pF|nF|uF|uH|nH|R|Ohm|Ohms
