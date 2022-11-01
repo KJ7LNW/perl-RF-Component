@@ -1,5 +1,5 @@
 package RF::Component;
-$VERSION = 1.002;
+our $VERSION = '1.002';
 
 
 use strict;
@@ -31,6 +31,16 @@ sub new
 {
 	my ($class, %args) = @_;
 
+	#############################################
+	# Compatibility cleanup from rsnp_hash values
+	#
+
+	# Name the matrix S, Z, Y, etc. based on its type:
+	$args{delete $args{param_type}} = delete $args{m};
+
+	# We don't need this, always Hz
+	delete $args{funit};
+
 	#########################
 	# Required arg validation
 	#
@@ -46,6 +56,14 @@ sub new
 	{
 		croak "Cannot define both value and value_(code|literal)_regex";
 	}
+
+	my @available_params = $self->_available_params;
+	if (!@available_params)
+	{
+		croak "At least one port-parameter matrix must be provided: " . join(' ', @PARAM_TYPES);
+	}
+
+	$args{n_ports} = PDL::IO::Touchstone::n_ports($self->{$available_params[0]});
 
 	croak "n_ports: Port count is required." if (!defined($self->{n_ports}));
 
@@ -69,11 +87,6 @@ sub new
 	elsif ($self->{z0_ref} <= 0)
 	{
 		croak "Invalid value for z0_ref: $self->{z0_ref}";
-	}
-
-	if (!$self->_available_params)
-	{
-		croak "At least one port-parameter matrix must be provided: " . join(' ', @PARAM_TYPES);
 	}
 
 	#########################
@@ -157,21 +170,11 @@ sub load_snp
 {
 	my ($class, $filename, %newopts) = @_;
 
-	my %args;
-
 	my $opts = delete $newopts{load_options};
 
 	croak "units: RF::Component requires an internal representation of Hz" if ($opts->{units} && lc($opts->{units}) ne 'hz');
 
-	@args{qw/freqs m param_type z0_ref comments output_fmt funit orig_f_unit/} = rsnp($filename, $opts);
-
-	# Name the matrix S, Z, Y, etc. based on its type:
-	$args{$args{param_type}} = delete $args{m};
-	$args{n_ports} = PDL::IO::Touchstone::n_ports($args{$args{param_type}});
-
-	# The constructor does not use these:
-	delete $args{funit}; # dont need it, always Hz
-	delete $args{param_type};
+	my %args = rsnp_hash(rsnp($filename, $opts));
 
 	return $class->new(
 		%newopts,
@@ -291,7 +294,7 @@ sub _available_params
 {
 	my $self = shift;
 
-	my @params = map { defined $_ } @$self{@PARAM_TYPES};
+	my @params = grep { defined $self->{$_} } @PARAM_TYPES;
 
 	return @params if (wantarray);
 
