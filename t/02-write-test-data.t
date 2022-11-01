@@ -7,20 +7,9 @@ use PDL;
 use RF::Component;
 use File::Temp qw/tempfile/;
 
-use Test::More tests => 1944;
+use Test::More tests => 1896;
 
-my $datadir = 't/test-data/muRata';
-
-opendir(my $dir, $datadir) or die "$datadir: $!";
-
-my @files = grep { /\.s\dp$/i } readdir($dir);
-closedir($dir);
-
-my ($fh, $tfn) = tempfile();
-close($fh);
-
-$tfn .= ".s2p";
-END { unlink $tfn };
+my @files = grep { !/IDEAL_OPEN|IDEAL_SHORT/ } testfiles(qr/\.s\d+p$/i, 't/test-data/', 't/test-data/muRata');
 
 my $tolerance = 1e-6;
 
@@ -29,7 +18,12 @@ my $tolerance = 1e-6;
 
 foreach my $fn (@files)
 {
-	my $c = RF::Component->load("$datadir/$fn");
+	my $c = RF::Component->load($fn);
+
+	my ($ext) = ($fn =~ /(\.s\d+p)$/);
+	my $t = File::Temp->new(CLEANUP => 1, TEMPLATE => 'rf-component-XXXXX', SUFFIX => $ext);
+	my $tfn = $t->filename;
+	close $t;
 
 	foreach my $fmt (qw/MA RI DB/)
 	{
@@ -37,7 +31,9 @@ foreach my $fn (@files)
 		# (and I think that is expected, but patches welcome!)
 		foreach my $param (qw/S Y A/)
 		{
-			foreach my $hz (qw/khz MHz GHz/) # mixed case
+			next if ($param eq 'A' && $c->num_ports != 2);
+
+			foreach my $hz (qw/khz GHz/) # mixed case
 			{
 				$c->save($tfn,
 					output_fmt => $fmt,
@@ -46,9 +42,17 @@ foreach my $fn (@files)
 
 				my $c2 = RF::Component->load($tfn);
 
+				ok($c->num_ports == $c2->num_ports, "nports");
+				ok($c->num_freqs == $c2->num_freqs, "nfreqs");
+
 				verify_sum($c->S, $c2->S, "$fn: $param $fmt $hz: S", $tolerance);
 				verify_sum($c->Y, $c2->Y, "$fn: $param $fmt $hz: Y", $tolerance);
-				verify_sum($c->A, $c2->A, "$fn: $param $fmt $hz: A", $tolerance);
+
+				if ($c->num_ports == 2)
+				{
+					verify_sum($c->ABCD, $c2->ABCD, "$fn: $param $fmt $hz: A", $tolerance);
+				}
+
 
 				# Frequency tolerances aren't quite as tight
 				# when scaling between SI units, but this is OK
@@ -80,4 +84,19 @@ sub verify_max
 
 	ok($re_err < $tolerance, "$msg: real error ($re_err) < $tolerance");
 	ok($im_err < $tolerance, "$msg: imag error ($im_err) < $tolerance");
+}
+
+sub testfiles
+{
+	my ($regex, @paths) = @_;
+
+	my @files;
+	foreach my $datadir (@paths)
+	{
+		opendir(my $dir, $datadir) or die "$datadir: $!";
+		push @files,  map { "$datadir/$_" } grep { /$regex/i } readdir($dir);
+		closedir($dir);
+	}
+
+	return @files;
 }
