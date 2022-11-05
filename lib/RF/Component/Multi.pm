@@ -4,7 +4,7 @@ our $VERSION = do { use RF::Component; $RF::Component::VERSION };
 
 use strict;
 use warnings;
-use PDL::IO::Touchstone qw/rsnp_hash/;
+use PDL::IO::Touchstone qw/rsnp_list_to_hash/;
 use PDL::IO::MDIF;
 use RF::Component;
 use Carp;
@@ -27,7 +27,7 @@ sub load
 	my @ret;
 	foreach my $snp (@$mdif_data)
 	{
-		my %data = rsnp_hash(@{ $snp->{_data} });
+		my %data = rsnp_list_to_hash(@{ $snp->{_data} });
 
 		my $c = RF::Component->new(%data);
 		

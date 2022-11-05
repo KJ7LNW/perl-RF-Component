@@ -174,7 +174,7 @@ sub load_snp
 
 	croak "units: RF::Component requires an internal representation of Hz" if ($opts->{units} && lc($opts->{units}) ne 'hz');
 
-	my %args = rsnp_hash(rsnp($filename, $opts));
+	my %args = rsnp_hash($filename, $opts);
 
 	return $class->new(
 		%newopts,
