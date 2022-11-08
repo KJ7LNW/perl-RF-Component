@@ -768,3 +768,40 @@ Internally this function uses the L<IO::PDL::Touchstone> C<y_srf_ideal> function
 =head2 C<$n = $self-E<gt>num_ports> - return the number of ports in this component.
 
 =head2 C<$n = $self-E<gt>num_freqs> - return the number of frequencies in this component.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<PDL::IO::Touchstone> - The lower-level framework used by L<RF::Component>
+
+=item L<RF::Component::Multi> - A list-encapsulation of L<RF::Component> to provide vectorized operations
+on multiple components.
+
+=item Touchstone specification: L<https://ibis.org/connector/touchstone_spec11.pdf>
+
+=back
+
+=head1 AUTHOR
+
+Originally written at eWheeler, Inc. dba Linux Global Eric Wheeler to
+transform .s2p files and build MDF files to optimize with Microwave Office
+for amplifer impedance matches.
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2022 eWheeler, Inc. L<https://www.linuxglobal.com/>
+
+This module is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+This module is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License along
+with this module. If not, see <http://www.gnu.org/licenses/>.
