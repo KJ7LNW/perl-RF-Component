@@ -32,7 +32,7 @@ my %WriteMakefileArgs = (
 		'Test::More' => '0',
 	},
 	PREREQ_PM => {
-		'PDL::IO::Touchstone' => '1.010',
+		'PDL::IO::Touchstone' => '1.011',
 	},
 	dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean => { FILES    => 'RF-Component-*' },
