@@ -8,6 +8,7 @@ README.md
 ignore.txt
 ignoredeps
 lib/RF/Component.pm
+lib/RF/Component/Multi.pm
 rebuild-manifest.sh
 redist.sh
 remake.sh
@@ -15,6 +16,7 @@ repod.sh
 t/00-load.t
 t/01-read-test-data.t
 t/02-write-test-data.t
+t/03-mdif-read.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
@@ -33,4 +35,5 @@ t/test-data/muRata/ind-choke-muRata-LQW15CA2R0K00.s2p
 t/test-data/muRata/ind-choke-muRata-LQW15DN150M00.s2p
 t/test-data/muRata/ind-muRata-LQW15AN3N8C10.s2p
 t/test-data/muRata/ind-muRata-LQW15AN9N9G00.s2p
+t/test-data/muRata/muRata-GQM-0402.mdf
 xt/boilerplate.t

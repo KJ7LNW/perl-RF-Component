@@ -255,3 +255,33 @@ Internally this function uses the [IO::PDL::Touchstone](https://metacpan.org/pod
 ## `$n = $self->num_ports` - return the number of ports in this component.
 
 ## `$n = $self->num_freqs` - return the number of frequencies in this component.
+
+# SEE ALSO
+
+- [PDL::IO::Touchstone](https://metacpan.org/pod/PDL::IO::Touchstone) - The lower-level framework used by [RF::Component](https://metacpan.org/pod/RF::Component)
+- [RF::Component::Multi](https://metacpan.org/pod/RF::Component::Multi) - A list-encapsulation of [RF::Component](https://metacpan.org/pod/RF::Component) to provide vectorized operations
+on multiple components.
+- Touchstone specification: [https://ibis.org/connector/touchstone\_spec11.pdf](https://ibis.org/connector/touchstone_spec11.pdf)
+
+# AUTHOR
+
+Originally written at eWheeler, Inc. dba Linux Global Eric Wheeler to
+transform .s2p files and build MDF files to optimize with Microwave Office
+for amplifer impedance matches.
+
+# COPYRIGHT
+
+Copyright (C) 2022 eWheeler, Inc. [https://www.linuxglobal.com/](https://www.linuxglobal.com/)
+
+This module is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+This module is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License along
+with this module. If not, see &lt;http://www.gnu.org/licenses/>.
