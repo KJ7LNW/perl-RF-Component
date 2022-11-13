@@ -776,6 +776,56 @@ the insertion (S21) phase changes from negative through zero to positive."
 
 Internally this function uses the L<IO::PDL::Touchstone> C<y_srf_ideal> function.
 
+=head1 Parameter Matrix and Vector Functions
+
+=head2 C<$n = $self-E<gt>freqs> - return a PDL vector of each frequency.
+
+=head2 C<$self-E<gt>S($i, $j)> - Access the S-parameter matrix or index slices.
+
+If C<$i> and C<$j> are specified, then return a PDL vector C<S_i,j> index slice
+at each frequency. The vector will contain one value for each frequency.  For
+example:
+
+	my $S11 = $self->S(1,1);
+
+If you omit C<$i> and C<$j> then this returns a (N,N,M) L<piddle|PDL> where N is the
+number of ports and M is the number of frequencies.
+
+=head2 C<$self-E<gt>Y($i, $j)> - Access the Y-parameter matrix or index slices.
+
+Same as C<$self-E<gt>S($i, $j)>, but for a Y-paramater matrix, see above.  Even
+if a Y-parameter data file was not loaded, Y-parameters will be calculated for
+you.
+
+=head2 C<$self-E<gt>Z($i, $j)> - Access the Z-parameter matrix or index slices.
+
+Same as C<$self-E<gt>S($i, $j)>, but for a Z-paramater matrix, see above.  Even
+if a Z-parameter data file was not loaded, Z-parameters will be calculated for
+you.
+
+=head2 C<$self-E<gt>ABCD($i, $j)> - Access the ABCD-parameter matrix or index slices.
+
+Same as C<$self-E<gt>S($i, $j)>, but for a ABCD-paramater matrix, see above.  Even
+if a ABCD-parameter data file was not loaded, ABCD-parameters will be calculated for
+you.
+
+
+=head2 C<$self-E<gt>A()> - Return the A vector from the ABCD matrix.
+
+Same as C<$self-E<gt>ABCD(1,1)>, returns a vector for A values at each frequency.
+
+=head2 C<$self-E<gt>B()> - Return the B vector from the ABCD matrix.
+
+Same as C<$self-E<gt>ABCD(1,2)>, returns a vector for B values at each frequency.
+
+=head2 C<$self-E<gt>C()> - Return the C vector from the ABCD matrix.
+
+Same as C<$self-E<gt>ABCD(2,1)>, returns a vector for C values at each frequency.
+
+=head2 C<$self-E<gt>D()> - Return the D vector from the ABCD matrix.
+
+Same as C<$self-E<gt>ABCD(2,2)>, returns a vector for D values at each frequency.
+
 =head1 Helper Functions
 
 =head2 C<$n = $self-E<gt>num_ports> - return the number of ports in this component.
