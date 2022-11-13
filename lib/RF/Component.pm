@@ -24,6 +24,7 @@ our %valid_opts = map { $_ => 1 } (
 				value_unit
 				value_code_regex
 				value_literal_regex
+				vars
 			/
 		);
 
@@ -200,6 +201,13 @@ sub save_snp
 {
 	my ($self, $filename, %args) = @_;
 
+	return wsnp($filename, $self->get_wsnp_list(%args));
+}
+
+sub get_wsnp_list
+{
+	my ($self, %args) = @_;
+
 	my ($f, $param_type, $z0, $comments, $fmt, $output_f_unit)
 		= @{$self}{qw/freqs param_type z0_ref comments output_fmt orig_f_unit/};
 
@@ -210,7 +218,7 @@ sub save_snp
 	$output_f_unit = $args{output_f_unit} if $args{output_f_unit};
 	$fmt = $args{output_fmt} if $args{output_fmt};
 
-	return wsnp($filename, $f, $m, $param_type, $z0, $comments, $fmt, 'Hz', $output_f_unit);
+	return ($f, $m, $param_type, $z0, $comments, $fmt, 'Hz', $output_f_unit);
 }
 
 sub freqs { return shift->{freqs} }
@@ -587,6 +595,11 @@ C<value_literal_regex>
 This is the unit expected in C<value> afer parsing C<value_code_regex>.
 Supported units: pF|nF|uF|uH|nH|R|Ohm|Ohms
 
+=item * C<vars>: A hashref of variable=value.
+
+This is an opaque variables structure.  Currently it is used for vars defined
+in an MDIF file.
+
 =back
 
 You may also pass the above C<new> options to the load call:
@@ -769,6 +782,11 @@ Internally this function uses the L<IO::PDL::Touchstone> C<y_srf_ideal> function
 
 =head2 C<$n = $self-E<gt>num_freqs> - return the number of frequencies in this component.
 
+=head2 C<@wsnp_list = $self-E<gt>get_wsnp_list()> - return a list for passing to C<wsnp()>
+
+L<PDL::IO::Touchstone>'s C<wsnp($filename, @wsnp_list)> writes a .sNp file.  It is also the list
+format used internally for MDIFs in L<RF::Component::Multi>.
+
 =head1 SEE ALSO
 
 =over 4
@@ -776,7 +794,9 @@ Internally this function uses the L<IO::PDL::Touchstone> C<y_srf_ideal> function
 =item L<PDL::IO::Touchstone> - The lower-level framework used by L<RF::Component>
 
 =item L<RF::Component::Multi> - A list-encapsulation of L<RF::Component> to provide vectorized operations
-on multiple components.
+on multiple components.  This allows you to open MDIF files in a classful-way.
+
+=item L<PDL::IO::MDIF> - Load MDIF files
 
 =item Touchstone specification: L<https://ibis.org/connector/touchstone_spec11.pdf>
 
