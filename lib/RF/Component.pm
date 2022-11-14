@@ -832,10 +832,25 @@ Same as C<$self-E<gt>ABCD(2,2)>, returns a vector for D values at each frequency
 
 =head2 C<$n = $self-E<gt>num_freqs> - return the number of frequencies in this component.
 
-=head2 C<@wsnp_list = $self-E<gt>get_wsnp_list()> - return a list for passing to C<wsnp()>
+=head2 C<@wsnp_list = $self-E<gt>get_wsnp_list(%opts)> - return a list for passing to C<wsnp()>
 
-L<PDL::IO::Touchstone>'s C<wsnp($filename, @wsnp_list)> writes a .sNp file.  It is also the list
-format used internally for MDIFs in L<RF::Component::Multi>.
+Options:
+
+=over 4
+
+=item * C<param_type> - One of S, Y, or Z.  The matrix returned in the list
+will be converted to the requested type (or an error will be thrown).
+
+=item * C<output_f_unit> - Same as L<wsnp|PDL::IO::Touchstone>'s C<$to_hz> value
+
+=item * C<output_fmt> - Same as L<wsnp|PDL::IO::Touchstone>'s C<$fmt> value
+
+=back
+
+The get_wsnp_list method returns a list compatible with
+L<PDL::IO::Touchstone>'s C<wsnp($filename, @wsnp_list)> function, which writes
+a .sNp file.  It is also the list format used internally for MDIFs in
+L<RF::Component::Multi>.
 
 =head1 SEE ALSO
 
