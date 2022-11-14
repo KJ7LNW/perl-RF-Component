@@ -13,6 +13,11 @@ sub new
 {
 	my ($class, @components) = @_;
 
+	if (grep { ref $_ ne 'RF::Component' } @components)
+	{
+		croak "All component objects must be RF::Component objects!"
+	}
+
 	return bless(\@components, $class);
 }
 
@@ -55,7 +60,7 @@ sub save
 
 		# Populate component vars from any existing vars first,
 		# these can be overriden below if specified in %opts{vars}.
-		foreach my $var (keys %{ $c->{vars} // {} })
+		foreach my $var (keys %$vars)
 		{
 			$c_vars{$var} = $c->{vars}{$var};
 		}
@@ -133,6 +138,12 @@ vector of results, one result for each L<RF::Component> object in the arrayref.
 
 	use RF::Component::Multi;
 
+	# Build an object from existing components:
+	$multi = RF::Component::Multi->new(@components);
+
+	# Save to an MDF:
+	$multi->save('mydata.mdf', vars => { pF => 'value' }, ...)
+
 	# Load an MDIF file:
 	my $mdf = RF::Component::Multi->load('t/test-data/muRata/muRata-GQM-0402.mdf',
 			load_options => { freq_min_hz => 100e6, freq_count => 1 }
@@ -147,6 +158,13 @@ vector of results, one result for each L<RF::Component> object in the arrayref.
 
 	# Print the result value (same as $component1->cap_pF, above):
 	print $cap_pF->[1];
+
+=head1 Constructor
+
+The constructor is simple, it just takes an array of L<RF::Component> objects
+and returns a blessed arrayref:
+
+	$m = RF::Component::Multi->new($c1, $c2, ...);
 
 =head1 IO Functions
 
@@ -181,9 +199,36 @@ Currently only L<MDIF|PDL::IO::MDIF> files are supported.
 
 =item C<vars>: a hashref of arbitrary variable/value mappings:
 
-   { pF => 100, ESR => 42, ... }
+Generically:
+	{
+		var1 => var_name1,
+		var2 => sub { $_[0]->something }
+	}
 
-These variables will be provided as variables L<PDL::IO::MDIF> as part of the
+Since this is a multi-data format, the name C<var_name1> must be a valid field
+in L<RF::Component>.  For example, you might specify C<{ pF =E<gt> 'value'}> to
+use the C<"value"> field from the component if it was parsed at load time.
+
+You may also use a coderef, in which case the L<RF::Component> object will
+be passed to the function.  For example:
+
+	vars => {
+			component => sub {
+				our $i //= 0;
+				my $c = shift;
+				my $t = "$i. $c->{value} $c->{value_unit} $c->{model}";
+				$i++;
+				return $t;
+			}
+		}
+
+Would produce variables which may show in your EDA software like this:
+
+	component="0. 0.1 pF GRM1555C1HR10WA01" [v]
+
+which convieniently provdes the index number, value, and component model so it
+is readable in your EDA software and you know what parts to order.
+
 MDIF structure being written.  Each variable should uniquely identify a
 component.  So far only single-variable MDIF files have been tested.  The
 format supports multiple variables, but it isn't clear how EDA software
