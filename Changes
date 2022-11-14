@@ -1,5 +1,9 @@
 Revision history for RF::Component
 
+1.005	2022-11-13T22:31:50-08:00
+	- Fixed regression in ->save
+	- Updated documentation
+
 1.004	2022-11-13T21:36:24-08:00
 	- Added support for saving MDIF files.
 	- Updated documentation
