@@ -26,14 +26,68 @@ sub load
 	my @ret;
 	foreach my $snp (@$mdif_data)
 	{
-		my %data = rsnp_list_to_hash(@{ $snp->{_data} });
+		my %data = rsnp_list_to_hash(@{ delete $snp->{_data} });
+		my $comments = delete $snp->{_comments};
 
-		my $c = RF::Component->new(%data);
+		my $c = RF::Component->new(%data,
+			vars => $snp,
+			($comments ? (comments => $comments) : () ) );
 		
 		push @ret, $c;
 	}
 
 	return $class->new(@ret);
+}
+
+sub save
+{
+	my ($self, $filename, %opts) = @_;
+
+	my $vars = delete $opts{vars} // {};
+	my $save_snp_opts = delete $opts{save_options} // {};
+
+	my @mdif;
+
+	# Foreach component in $self, build out an @mdif array:
+	foreach my $c (@$self)
+	{
+		my %c_vars;
+
+		# Populate component vars from any existing vars first,
+		# these can be overriden below if specified in %opts{vars}.
+		foreach my $var (keys %{ $c->{vars} // {} })
+		{
+			$c_vars{$var} = $c->{vars}{$var};
+		}
+
+		# Build the MDIF vars:
+		foreach my $var (keys %$vars)
+		{
+			my $val_name = $vars->{$var};
+			my $val;
+
+			if (ref $val_name eq 'CODE')
+			{
+				$val = $val_name->($c);
+			}
+			elsif (!ref($val_name) && $RF::Component::valid_opts{$val_name})
+			{
+				$val = $c->{$val_name};
+			}
+			else
+			{
+				croak "save: invalid value name: $val_name";
+			}
+
+			$c_vars{$var} = $val;
+		}
+
+		$c_vars{_data} = [ $c->get_wsnp_list(%$save_snp_opts)  ];
+
+		push @mdif, \%c_vars;
+	}
+
+	return wmdif($filename, \@mdif);
 }
 
 # Thanks @ikegami:
@@ -108,6 +162,41 @@ Currently only MDIF files are supported, other formats are possible.  Usage:
 
 =item * If C<load_options> is provided in C<%options> then C<load_options> is
 passed to L<PDL::IO::MDIF>'s C<rmdif> function.
+
+=back
+
+=head2 C<$self-E<gt>save> - Save a multiple-data file
+
+	$mdif->save($filename, %opts)
+
+=over 4
+
+=item * C<$filename> - path to file to output file.
+
+Currently only L<MDIF|PDL::IO::MDIF> files are supported.
+
+=item * C<%opts> - Options:
+
+=over 4
+
+=item C<vars>: a hashref of arbitrary variable/value mappings:
+
+   { pF => 100, ESR => 42, ... }
+
+These variables will be provided as variables L<PDL::IO::MDIF> as part of the
+MDIF structure being written.  Each variable should uniquely identify a
+component.  So far only single-variable MDIF files have been tested.  The
+format supports multiple variables, but it isn't clear how EDA software
+(like L<Microwave Office|https://www.cadence.com/en_US/home/tools/system-analysis/rf-microwave-design/awr-microwave-office.html>)
+will handle the extra variables.  Please send me an email with commentary if
+you know what (if anything) should be done here!  See the MDIF format
+specification linked below.
+
+=item C<save_options>: These options are passed to
+L<RF::Component-E<gt>get_wsnp_list|RF::Component> when generating to array
+structure expected by L<wmdif|PDL::IO::MDIF>.
+
+=back
 
 =back
 
