@@ -60,7 +60,7 @@ sub save
 
 		# Populate component vars from any existing vars first,
 		# these can be overriden below if specified in %opts{vars}.
-		foreach my $var (keys %$vars)
+		foreach my $var (keys %{ $c->{vars} // {} })
 		{
 			$c_vars{$var} = $c->{vars}{$var};
 		}
