@@ -251,7 +251,7 @@ sub z0_ref
 
 	return $self->{z0_ref} if !defined $port;
 
-	croak "per-port impedances is not supported."
+	croak "per-port impedances is not supported.";
 
 	# Supporting per-port impedances requires PDL::IO::Touchstone functions
 	# like s_to_y($S, $z0) to support different port impedances.  Internally
@@ -544,19 +544,19 @@ is the number of frequencies to represent complex port-parameter data:
 
 =over 4
 
-=item S => pdl(...) - S-Paramters
+=item S => pdl(...) - S-Parameters
 
-=item Y => pdl(...) - Y-Paramters
+=item Y => pdl(...) - Y-Parameters
 
-=item Z => pdl(...) - Z-Paramters
+=item Z => pdl(...) - Z-Parameters
 
-=item A => pdl(...) - ABCD-Paramters
+=item A => pdl(...) - ABCD-Parameters
 
-=item H => pdl(...) - H-Paramters (not yet implemented)
+=item H => pdl(...) - H-Parameters (not yet implemented)
 
-=item G => pdl(...) - G-Paramters (not yet implemented)
+=item G => pdl(...) - G-Parameters (not yet implemented)
 
-=item T => pdl(...) - T-Paramters (not yet implemented)
+=item T => pdl(...) - T-Parameters (not yet implemented)
 
 =back
 
@@ -687,7 +687,7 @@ desired file output type.
 
 =over 4
 
-=item * C<param_type>: Supported paramter type: S, Y, Z, A
+=item * C<param_type>: Supported Parameter type: S, Y, Z, A
 
 Notice: While A can be specified to write ABCD-formatted parameters, the ABCD
 matrix is not officially supported by the Touchstone spec.
@@ -715,7 +715,7 @@ frequency.
 
 =head2 C<$self-E<gt>at($f_Hz)> - Frequency extrapolation (object cloning)
 
-It is importatant to easily choose which frequencies will be used for
+It is important to easily choose which frequencies will be used for
 calculations because the functions below return vectors with values at each
 frequency for the calculation provided.  In many cases you will want to load a
 Touchstone data file at all frequencies and then use C<$obj-E<gt>at($f_Hz)> to
@@ -774,61 +774,61 @@ In a 2-port, this will provide the input or output impedance as follows:
 Note that the port number starts at 1, not zero.  Thus a value of C<$n=1> will
 evaluate port impedance at C<S11>.
 
-Internally this function uses the L<IO::PDL::Touchstone> C<s_port_z> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<s_port_z> function.
 
 
 =head2 C<$C = $self-E<gt>capacitance> - Return a vector of capacitance for each frequency in Farads (F)
 
 Note that all inductive values are zeroed.
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_capacitance> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_capacitance> function.
 
 
 =head2 C<$C = $self-E<gt>cap_pF> - Return a vector of capacitance it each frequency in picofarads (pF)
 
 Note that all capacitive values are zeroed.
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_cap_pF> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_cap_pF> function.
 
 
 =head2 C<$L = $self-E<gt>inductance> - Return a vector of inductance for each frequency in Henrys (H)
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_inductance> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_inductance> function.
 
 
 =head2 C<$L = $self-E<gt>ind_nH> - Return a vector of inductance for each frequency in nanohenrys (nH)
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_ind_nH> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_ind_nH> function.
 
 
 =head2 C<$Qc = $self-E<gt>qfactor_c> - Return the capacitive Q-factor vector for each frequency
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_qfactor_c> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_qfactor_c> function.
 
 
 =head2 C<$Ql = $self-E<gt>qfactor_l> - Return the inductive Q-factor vector for each frequency
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_qfactor_l> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_qfactor_l> function.
 
 
 =head2 C<$X = $self-E<gt>reactance> - Return a vector of total reactance for each frequency
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_reactance> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_reactance> function.
 
 
 =head2 C<$Xc = $self-E<gt>reactance_c> - Return a vector of capacitive reactance for each frequency
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_reactance_c> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_reactance_c> function.
 
 
 =head2 C<$Xl = $self-E<gt>reactance_l> - Return a vector of inductive reactance for each frequency
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_reactance_l> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_reactance_l> function.
 
 
 =head2 C<$R = $self-E<gt>esr> - An alias for C<y_resistance>.
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_esr> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_esr> function.
 
 
 =head2 C<@srf_list_hz = $self-E<gt>srf> - Return the component's self-resonant frequencies (SRF)
@@ -847,7 +847,7 @@ Return value:
 
 =back
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_srf> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_srf> function.
 
 
 =head2 C<$f_hz = $self-E<gt>srf_ideal> - Return the component's first self-resonant frequency
@@ -860,7 +860,7 @@ frequency lines as follows: "The SRF is determined to be the frequency at which
 the insertion (S21) phase changes from negative through zero to positive."
 [ L<https://www.coilcraft.com/getmedia/8ef1bd18-d092-40e8-a3c8-929bec6adfc9/doc363_measuringsrf.pdf> ]
 
-Internally this function uses the L<IO::PDL::Touchstone> C<y_srf_ideal> function.
+Internally this function uses the L<PDL::IO::Touchstone> C<y_srf_ideal> function.
 
 =head1 Parameter Matrix and Vector Functions
 
@@ -879,19 +879,19 @@ number of ports and M is the number of frequencies.
 
 =head2 C<$self-E<gt>Y($i, $j)> - Access the Y-parameter matrix or index slices.
 
-Same as C<$self-E<gt>S($i, $j)>, but for a Y-paramater matrix, see above.  Even
+Same as C<$self-E<gt>S($i, $j)>, but for a Y-parameter matrix, see above.  Even
 if a Y-parameter data file was not loaded, Y-parameters will be calculated for
 you.
 
 =head2 C<$self-E<gt>Z($i, $j)> - Access the Z-parameter matrix or index slices.
 
-Same as C<$self-E<gt>S($i, $j)>, but for a Z-paramater matrix, see above.  Even
+Same as C<$self-E<gt>S($i, $j)>, but for a Z-parameter matrix, see above.  Even
 if a Z-parameter data file was not loaded, Z-parameters will be calculated for
 you.
 
 =head2 C<$self-E<gt>ABCD($i, $j)> - Access the ABCD-parameter matrix or index slices.
 
-Same as C<$self-E<gt>S($i, $j)>, but for a ABCD-paramater matrix, see above.  Even
+Same as C<$self-E<gt>S($i, $j)>, but for a ABCD-parameter matrix, see above.  Even
 if a ABCD-parameter data file was not loaded, ABCD-parameters will be calculated for
 you.
 
